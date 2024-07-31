@@ -1,0 +1,25 @@
+<!-- random-cards.handlebars -->
+{{#each cards}}
+<div class="card">
+    <h2>{{this.name}}</h2>
+    <button onclick="saveFavorite('{{this}}')">Favorite</button>
+</div>
+{{/each}}
+
+<script>
+function saveFavorite(cardData) {
+    fetch('/favorites', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ cardData })
+    }).then(response => {
+        if (response.ok) {
+            alert('Favorite saved');
+        } else {
+            alert('Failed to save favorite');
+        }
+    });
+}
+</script>
