@@ -6,7 +6,7 @@ const pool = new Pool({
     }
 });
 
-async function saveFavorite(userId, cardData) {
+async function savefavorite(userId, cardData) {
     const client = await pool.connect();
     try {
         await client.query('INSERT INTO favorites (user_id, card_data) VALUES ($1, $2)', [userId, cardData]);
@@ -15,7 +15,7 @@ async function saveFavorite(userId, cardData) {
     }
 }
 
-async function getFavorites(userId) {
+async function getfavorites(userId) {
     const client = await pool.connect();
     try {
         const res = await client.query('SELECT card_data FROM favorites WHERE user_id = $1', [userId]);

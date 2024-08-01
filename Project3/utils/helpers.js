@@ -1,15 +1,15 @@
 // helpers.js
-const { Favorite } = require('./models'); // Assuming you have a Favorite model
+const { favorite } = require('../models/favorite'); // Assuming you have a favorite model
 
-async function getFavorites(userId) {
-  return await Favorite.findAll({ where: { user_id: userId } });
+async function getfavorites(userId) {
+  return await favorite.findAll({ where: { user_id: userId } });
 }
 
-async function saveFavorite(userId, cardData) {
-  return await Favorite.create({ user_id: userId, card_data: cardData });
+async function savefavorite(userId, cardData) {
+  return await favorite.create({ user_id: userId, card_data: cardData });
 }
 
-module.exports = { getFavorites, saveFavorite };
+module.exports = { getfavorites, savefavorite };
 
 // module.exports = {
 //   format_date: (date) => {

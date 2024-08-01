@@ -4,60 +4,75 @@ const exphbs = require('express-handlebars');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+const sequelize = require('./config/database');
+const favorite = require('./models/favorite');
+const { getfavorites, savefavorite } = require('./utils/helpers');
 const app = express();
-const { getFavorites, saveFavorite } = require('./helpers');
 
 app.engine('handlebars', exphbs());
 app.set('view engine', 'handlebars');
 
 // Other configurations and middleware
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(new LocalStrategy(
-    function(username, password, done) {
-        // Implement user authentication logic here
-    }
+  function(username, password, done) {
+    // Implement user authentication logic here
+  }
 ));
 
 passport.serializeUser(function(user, done) {
-    done(null, user.id);
+  done(null, user.id);
 });
 
 passport.deserializeUser(function(id, done) {
-    // Fetch user by ID
+  // Fetch user by ID
 });
 
+// Sync all models
+sequelize.sync()
+  .then(() => {
+    console.log('Database & tables created!');
+  })
+  .catch(err => {
+    console.error('Unable to create tables, shutting down...', err);
+    process.exit(1);
+  });
+
+// Route to fetch random cards
 app.get('/random-cards', async (req, res) => {
-  const cards = await fetchRandomCards();
+  const cards = await fetchRandomSwapiCards();
   res.render('random-cards', { cards });
 });
 
+// Route to get favorite cards
 app.get('/favorites', async (req, res) => {
   if (!req.isAuthenticated()) {
-      return res.redirect('/login');
+    return res.redirect('/login');
   }
-  const favorites = await getFavorites(req.user.id);
+  const favorites = await getfavorites(req.user.id);
   res.render('favorites', { cards: favorites });
 });
 
+// Route to save a favorite card
 app.post('/favorites', async (req, res) => {
   if (!req.isAuthenticated()) {
-      return res.status(401).send('Unauthorized');
+    return res.status(401).send('Unauthorized');
   }
-  await saveFavorite(req.user.id, req.body.cardData);
-  res.send('Favorite saved');
+  await savefavorite(req.user.id, req.body.cardData);
+  res.send('favorite saved');
 });
 
 // Other routes and server setup
 
 const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
-
 // // server.js
 // const express = require('express');
 // const { fetchRandomSwapiCards } = require('./swapiService');
