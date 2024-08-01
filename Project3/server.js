@@ -4,13 +4,19 @@ const exphbs = require('express-handlebars');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+const path = require('path');
 const sequelize = require('./config/database');
+const randomCardsRoutes = require('./routes/randomCardsRoutes');
+const favoritesRoutes = require('./routes/favoritesRoutes');
 const favorite = require('./models/favorite');
 const { getfavorites, savefavorite } = require('./utils/helpers');
 const app = express();
+const router = express.Router();
+const authRoutes = require('./routes/authRoutes');
 
 app.engine('handlebars', exphbs());
 app.set('view engine', 'handlebars');
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Other configurations and middleware
 app.use(express.json());
@@ -18,6 +24,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use('/', authRoutes);
+
+// Define the route
+app.post('/api/users', (req, res) => {
+  // Handle user creation logic here
+  const user = req.body;
+  // Save user to database (this is just a placeholder)
+  console.log('User created:', user);
+  res.status(201).send({ message: 'User created successfully' });
+});
+
+// Define the profile route
+app.get('/profile', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.send(`Welcome to your profile, ${req.user.username}`);
+  } else {
+    res.redirect('/login');
+  }
+});
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
@@ -33,38 +58,37 @@ passport.deserializeUser(function(id, done) {
   // Fetch user by ID
 });
 
+app.use('/api', randomCardsRoutes);
+app.use('/api', favoritesRoutes);
 // Sync all models
 sequelize.sync()
-  .then(() => {
+.then(() => {
     console.log('Database & tables created!');
   })
   .catch(err => {
     console.error('Unable to create tables, shutting down...', err);
     process.exit(1);
   });
-
-// Route to fetch random cards
-app.get('/random-cards', async (req, res) => {
-  const cards = await fetchRandomSwapiCards();
-  res.render('random-cards', { cards });
+// Error handling middleware (optional)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
-// Route to get favorite cards
-app.get('/favorites', async (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.redirect('/login');
-  }
-  const favorites = await getfavorites(req.user.id);
-  res.render('favorites', { cards: favorites });
-});
+router.post('/favorites', (req, res) => {
+  const { cardData } = req.body;
 
-// Route to save a favorite card
-app.post('/favorites', async (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.status(401).send('Unauthorized');
+  if (!cardData) {
+    return res.status(400).send('Bad Request: Missing card data');
   }
-  await savefavorite(req.user.id, req.body.cardData);
-  res.send('favorite saved');
+
+  // Implement logic to save the favorite card data
+  // For example, save to a database or in-memory store
+
+  console.log('Favorite card data:', cardData);
+
+  // Respond with success
+  res.status(200).send('Favorite saved');
 });
 
 // Other routes and server setup
@@ -73,6 +97,22 @@ const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+// Render the login page
+router.get('/login', (req, res) => {
+  res.render('login'); // Ensure you have a login.handlebars or login.ejs file in your views directory
+});
+
+// // Database connection
+// const sequelize = new Sequelize(
+//   process.env.DB_NAME,
+//   process.env.DB_USER,
+//   process.env.DB_PASSWORD,
+//   {
+//     host: process.env.DB_HOST,
+//     dialect: process.env.DB_DIALECT,
+//   }
+// );
+
 // // server.js
 // const express = require('express');
 // const { fetchRandomSwapiCards } = require('./swapiService');

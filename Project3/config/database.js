@@ -1,7 +1,7 @@
 // config/database.js
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize('database', 'username', 'password', {
+const sequelize = new Sequelize('cardswapi_db', 'charlesrwilson', 'Cwil0096', {
   host: 'localhost',
   dialect: 'postgres', // or 'mysql'
 });
