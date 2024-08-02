@@ -5,7 +5,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const path = require('path');
-const sequelize = require('./config/database');
+const sequelize = require('./config/connection');
 const randomCardsRoutes = require('./routes/randomCardsRoutes');
 const favoritesRoutes = require('./routes/favoritesRoutes');
 const favorite = require('./models/favorite');
@@ -26,14 +26,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', authRoutes);
 
-// Define the route
-app.post('/api/users', (req, res) => {
-  // Handle user creation logic here
-  const user = req.body;
-  // Save user to database (this is just a placeholder)
-  console.log('User created:', user);
-  res.status(201).send({ message: 'User created successfully' });
-});
+// // Define the route
+// app.post('/api/users', (req, res) => {
+//   // Handle user creation logic here
+//   const user = req.body;
+//   // Save user to database (this is just a placeholder)
+//   console.log('User created:', user);
+//   res.status(201).send({ message: 'User created successfully' });
+// });
 
 // Define the profile route
 app.get('/profile', (req, res) => {
@@ -61,7 +61,7 @@ passport.deserializeUser(function(id, done) {
 app.use('/api', randomCardsRoutes);
 app.use('/api', favoritesRoutes);
 // Sync all models
-sequelize.sync()
+sequelize.sync({force: false})
 .then(() => {
     console.log('Database & tables created!');
   })

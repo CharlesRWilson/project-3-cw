@@ -7,6 +7,14 @@ const path = require('path');
 // Middleware to parse JSON bodies
 router.use(express.json());
 
+// Define the route for user creation
+router.post('/api/users', (req, res) => {
+    const user = req.body;
+    // Handle user creation logic here
+    // Save user to database (this is just a placeholder)
+    res.status(201).json({ message: 'User created successfully', user });
+  });
+
 // Render the login page
 router.get('/login', (req, res) => {
   res.render('login'); // Ensure you have a login.handlebars file in your views directory
@@ -18,7 +26,7 @@ router.get('/signup', (req, res) => {
 });
 
 // Handle login form submission
-router.post('/login', (req, res) => {
+router.post('/api/users/login', (req, res) => {
     const { email, password } = req.body;
   
     console.log('Login attempt:', { email, password });

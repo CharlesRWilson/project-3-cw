@@ -1,16 +1,30 @@
-// models/favorite.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const { Model, DataTypes } = require('sequelize');
+const sequelize = require('../config/connection'); // Ensure this path is correct
 
-const favorite = sequelize.define('favorite', {
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  card_data: {
-    type: DataTypes.JSON,
-    allowNull: false,
-  },
-});
+class Favorite extends Model {}
 
-module.exports = favorite;
+Favorite.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    cardId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+  },
+  {
+    sequelize,
+    modelName: 'favorite',
+    timestamps: false,
+  }
+);
+
+module.exports = Favorite;
