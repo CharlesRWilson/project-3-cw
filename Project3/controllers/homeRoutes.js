@@ -1,82 +1,113 @@
-const router = require('express').Router();
-const { Project, User } = require('../models');
-const withAuth = require('../utils/auth');
+// routes/authRoutes.js
+const express = require('express');
+const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 
-router.get('/', async (req, res) => {
-  try {
-    // Get all projects and JOIN with user data
-    const projectData = await Project.findAll({
-      include: [
-        {
-          model: User,
-          attributes: ['name'],
-        },
-      ],
-    });
+// Middleware to parse JSON bodies
+router.use(express.json());
 
-    // Serialize data so the template can read it
-    const projects = projectData.map((project) => project.get({ plain: true }));
+// Define the route for user creation
+router.post('/api/user', (req, res) => {
+    const user = req.body;
+    // Handle user creation logic here
+    // Save user to database (this is just a placeholder)
+    res.status(201).json({ message: 'User created successfully', user });
+  });
 
-    // Pass serialized data and session flag into template
-    res.render('homepage', { 
-      projects, 
-      logged_in: req.session.logged_in 
-    });
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
-
-router.get('/project/:id', async (req, res) => {
-  try {
-    const projectData = await Project.findByPk(req.params.id, {
-      include: [
-        {
-          model: User,
-          attributes: ['name'],
-        },
-      ],
-    });
-
-    const project = projectData.get({ plain: true });
-
-    res.render('project', {
-      ...project,
-      logged_in: req.session.logged_in
-    });
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
-
-// Use withAuth middleware to prevent access to route
-router.get('/profile', withAuth, async (req, res) => {
-  try {
-    // Find the logged in user based on the session ID
-    const userData = await User.findByPk(req.session.user_id, {
-      attributes: { exclude: ['password'] },
-      include: [{ model: Project }],
-    });
-
-    const user = userData.get({ plain: true });
-
-    res.render('profile', {
-      ...user,
-      logged_in: true
-    });
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
-
+// Render the login page
 router.get('/login', (req, res) => {
-  // If the user is already logged in, redirect the request to another route
-  if (req.session.logged_in) {
-    res.redirect('/profile');
-    return;
-  }
-
-  res.render('login');
+  res.render('login'); // Ensure you have a login.handlebars file in your views directory
 });
 
+// Render the signup page (if separate)
+router.get('/signup', (req, res) => {
+  res.render('signup'); // Ensure you have a signup.handlebars file in your views directory
+});
+
+// Handle login form submission
+// router.post('/api/users/login', (req, res) => {
+//     const { email, password } = req.body;
+  
+//     console.log('Login attempt:', { email, password });
+
+//     // Read existing users from userData.json
+//     const userDataPath = path.join(__dirname, './userData.json');
+//     fs.readFile(userDataPath, 'utf8', (err, data) => {
+//       if (err) {
+//         console.error('Error reading user data:', err);
+//         return res.status(500).send({ message: 'Internal server error' });
+//       }
+  
+//       const users = JSON.parse(data);
+//       const user = users.find(u => u.email === email && u.password === password);
+  
+//       if (user) {
+//         console.log('User logged in:', user);
+  
+//         // Log successful login attempt
+//         const loginAttemptsPath = path.join(__dirname, 'loginAttempts.json');
+//         fs.readFile(loginAttemptsPath, 'utf8', (err, data) => {
+//           let loginAttempts = [];
+//           if (!err) {
+//             loginAttempts = JSON.parse(data);
+//           }
+//           loginAttempts.push({ email, timestamp: new Date().toISOString() });
+  
+//           fs.writeFile(loginAttemptsPath, JSON.stringify(loginAttempts, null, 2), (err) => {
+//             if (err) {
+//               console.error('Error writing login attempts:', err);
+//             }
+//           });
+//         });
+//         // Redirect to profile page
+//         res.redirect('/profile');
+//         } else {
+//         console.log('User not found');
+//         res.status(404).send({ message: 'User not found' });
+//     }
+//     });
+//   });
+
+  // Render the profile page
+router.get('/profile', (req, res) => {
+  const user = req.session.user; // Example: using session to store user data
+
+  if (user) {
+    res.render('profile', {
+      name: user.name,
+      favorites: user.favorites || []
+    });
+  } else {
+    res.redirect('/login'); // Redirect to login if user data is not available
+  }
+});
+// Handle signup form submission
+// router.post('/signup', (req, res) => {
+//     const { name, email, password } = req.body;
+//     const newUser = { name, email, password };
+  
+//     const userDataPath = path.join(__dirname, './userData.json');
+//     fs.readFile(userDataPath, 'utf8', (err, data) => {
+//       if (err) {
+//         console.error('Error reading user data:', err);
+//         return res.status(500).send({ message: 'Internal server error' });
+//       }
+  
+//       const users = JSON.parse(data);
+//       users.push(newUser);
+  
+//       // Write updated users back to userData.json
+//       fs.writeFile(userDataPath, JSON.stringify(users, null, 2), (err) => {
+//         if (err) {
+//           console.error('Error writing user data:', err);
+//           return res.status(500).send({ message: 'Internal server error' });
+//         }
+  
+//         console.log('User created:', newUser);
+//         // If registration is successful
+//         res.status(201).send({ message: 'User created successfully' });
+//       });
+//     });
+// 
 module.exports = router;

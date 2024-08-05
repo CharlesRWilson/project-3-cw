@@ -1,5 +1,6 @@
 // controllers/randomCardsController.js
 const axios = require('axios');
+const router = require('express').Router();
 
 const getRandomCards = async () => {
   try {
@@ -17,4 +18,14 @@ const getRandomCards = async () => {
   }
 };
 
-  module.exports = { getRandomCards };
+router.get('/', async (req, res) => {
+    try {
+      const cards = await getRandomCards();
+      res.render('random-cards', { cards });
+    } catch (error) {
+      console.error('Error fetching random cards:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+
+  module.exports = router ;

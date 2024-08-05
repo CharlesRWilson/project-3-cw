@@ -6,13 +6,14 @@ const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const path = require('path');
 const sequelize = require('./config/connection');
-const randomCardsRoutes = require('./routes/randomCardsRoutes');
-const favoritesRoutes = require('./routes/favoritesRoutes');
-const favorite = require('./models/favorite');
-const { getfavorites, savefavorite } = require('./utils/helpers');
+const routes = require('./controllers');
+// const randomCardsRoutes = require('./controllers/randomCardsController');
+// const favoritesRoutes = require('./controllers/api/favoritesRoutes');
+// const favorite = require('./models/favorite');
+// const { getfavorites, savefavorite } = require('./utils/helpers');
 const app = express();
 const router = express.Router();
-const authRoutes = require('./routes/authRoutes');
+// const authRoutes = require('./controllers/homeRoutes');
 
 app.engine('handlebars', exphbs());
 app.set('view engine', 'handlebars');
@@ -21,10 +22,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Other configurations and middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
+// app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
+// Session middleware configuration
+app.use(session({
+  secret: 'anykey',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Set to true if using HTTPS
+}));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use('/', authRoutes);
+app.use(routes)
+// app.use('/', authRoutes);
+// app.use('/random-cards', randomCardsRoutes);
+// app.use('/favorites', favoritesRoutes);
+
 
 // // Define the route
 // app.post('/api/users', (req, res) => {
@@ -35,31 +47,23 @@ app.use('/', authRoutes);
 //   res.status(201).send({ message: 'User created successfully' });
 // });
 
-// Define the profile route
-app.get('/profile', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.send(`Welcome to your profile, ${req.user.username}`);
-  } else {
-    res.redirect('/login');
-  }
-});
+// // Define the profile route
+// passport.use(new LocalStrategy(
+//   function(username, password, done) {
+//     // Implement user authentication logic here
+//   }
+// ));
 
-passport.use(new LocalStrategy(
-  function(username, password, done) {
-    // Implement user authentication logic here
-  }
-));
+// passport.serializeUser(function(user, done) {
+//   done(null, user.id);
+// });
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
+// passport.deserializeUser(function(id, done) {
+//   // Fetch user by ID
+// });
 
-passport.deserializeUser(function(id, done) {
-  // Fetch user by ID
-});
-
-app.use('/api', randomCardsRoutes);
-app.use('/api', favoritesRoutes);
+// app.use('/api', randomCardsRoutes);
+// app.use('/api', favoritesRoutes);
 // Sync all models
 sequelize.sync({force: false})
 .then(() => {
@@ -75,21 +79,21 @@ app.use((err, req, res, next) => {
   res.status(500).send('Something broke!');
 });
 
-router.post('/favorites', (req, res) => {
-  const { cardData } = req.body;
+// router.post('/favorites', (req, res) => {
+//   const { cardData } = req.body;
 
-  if (!cardData) {
-    return res.status(400).send('Bad Request: Missing card data');
-  }
+//   if (!cardData) {
+//     return res.status(400).send('Bad Request: Missing card data');
+//   }
 
-  // Implement logic to save the favorite card data
-  // For example, save to a database or in-memory store
+//   // Implement logic to save the favorite card data
+//   // For example, save to a database or in-memory store
 
-  console.log('Favorite card data:', cardData);
+//   console.log('Favorite card data:', cardData);
 
-  // Respond with success
-  res.status(200).send('Favorite saved');
-});
+//   // Respond with success
+//   res.status(200).send('Favorite saved');
+// });
 
 // Other routes and server setup
 
@@ -98,9 +102,9 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 // Render the login page
-router.get('/login', (req, res) => {
-  res.render('login'); // Ensure you have a login.handlebars or login.ejs file in your views directory
-});
+// router.get('/login', (req, res) => {
+//   res.render('login'); // Ensure you have a login.handlebars or login.ejs file in your views directory
+// });
 
 // // Database connection
 // const sequelize = new Sequelize(
