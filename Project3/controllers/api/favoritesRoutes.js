@@ -1,9 +1,7 @@
-// routes/favoritesRoutes.js
 const express = require('express');
 const router = express.Router();
 // const { getfavorites, savefavorite } = require('../controllers/favoritesController');
 
-// controllers/favoritesController.js
 const getfavorites = async (userId) => {
     try {
       // Implement logic to fetch favorites for a user

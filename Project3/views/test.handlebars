@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {{!-- <title>Random Cards!</title> --}}
+  <link rel="stylesheet" href="/css/jass.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="flex-column justify-space-around">
+    <header class="display-flex justify-space-between align-center p-2">
+      <h1>
+        {{!-- <a href="/">Random Cards!</a> --}}
+      </h1>
+      <nav>
+        {{#if loggedIn}}
+        <a href="/profile">profile</a> |
+        {{!-- <button class="no-button" id="logout">logout</button> --}}
+        {{else}}
+        <a href="/login">login</a>
+        {{/if}}
+      </nav>
+    </header>
+    <main class="container container-fluid mt-5">
+      {{{ body }}}
+      <div class="card-container">
+        {{#each cards}}
+        <div class="card">
+          <h2>{{this.title}}</h2>
+          <p>{{this.description}}</p>
+          <button class="favorite-button" data-id="{{this.id}}" style="display: block;">Favorite</button></button>
+          {{#if loggedIn}}
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+    </main>
+    <footer>
+      <!-- Footer content -->
+    </footer>
+  </div>
+
+  {{#if loggedIn}}
+  {{!-- <script src="/js/logout.js"></script> --}}
+  <script src="/js/favorite.js"></script>
+  {{/if}}
+</body>
+</html>
+{{!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Cards!</title>
+  <link rel="stylesheet" href="/css/jass.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div class="flex-column justify-space-around">
+    <header class="display-flex justify-space-between align-center p-2">
+      <h1>
+        <a href="/">Random Cards!</a>
+      </h1>
+      <nav>
+        {{#if loggedIn}}
+        <a href="/profile">profile</a> |
+        <button class="no-button" id="logout">logout</button>
+        {{else}}
+        <a href="/login">login</a>
+        {{/if}}
+      </nav>
+    </header>
+    <main class="container container-fluid mt-5">
+      {{{ body }}}
+    </main>
+    <footer>
+      
+    </footer>
+  </div>
+
+  {{#if loggedIn}}
+  <script src="/js/logout.js"></script>
+  {{/if}}
+</body>
+
+</html> --}}

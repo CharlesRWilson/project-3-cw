@@ -1,44 +1,25 @@
 const router = require('express').Router();
-const { User } = require('../../models/User');
+const { User } = require('../../models');
 
 router.post('/signup', async (req, res) => {
   try {
-    const newUser = await User.create({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
-    });
-
+    const userData = await User.create(req.body);
+    console.log(userData);
     req.session.save(() => {
-      req.session.user_id = newUser.id;
+      req.session.user_id = userData.id;
       req.session.logged_in = true;
 
-      res.status(200).json(newUser);
+      res.status(200).json(userData);
     });
   } catch (err) {
     console.error('Error during signup:', err);
     res.status(400).json(err);
   }
 });
-// router.post('/signup', async (req, res) => {
-//   try {
-//     const userData = await User.create(req.body);
-//     console.log(userData);
-//     req.session.save(() => {
-//       req.session.user_id = userData.id;
-//       req.session.logged_in = true;
-
-//       res.status(200).json(userData);
-//     });
-//   } catch (err) {
-//     console.error('Error during signup:', err);
-//     res.status(400).json(err);
-//   }
-// });
 
 router.post('/login', async (req, res) => {
   try {
-    console.log(req.body.email, req.body.password);
+    // console.log(req.body.email, req.body.password);
     const userData = await User.findOne({ where: { email: req.body.email } });
 
     if (!userData) {
@@ -49,7 +30,7 @@ router.post('/login', async (req, res) => {
     }
 
     const validPassword = await userData.checkPassword(req.body.password);
-
+    // console.log(validPassword);
     if (!validPassword) {
       res
         .status(400)
