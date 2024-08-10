@@ -94,7 +94,35 @@ router.post('/favorite', async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
+// // Render the profile page
+// router.get('/profile', async (req, res) => {
+//   try {
+//     const userId = req.session.user_id;
 
+//     if (!userId) {
+//       return res.redirect('/login');
+//     }
+
+//     const userData = await User.findByPk(userId, {
+//       include: [{ model: Favorite }]
+//     });
+
+//     if (userData) {
+//       const userData = userData.get({ plain: true });
+
+//       res.render('profile', {
+//         name: userData.name,
+//         favorites: userData.Favorites.map(fav => fav.cardId),
+//         loggedIn: req.session.logged_in
+//       });
+//     } else {
+//       res.redirect('/login'); // Redirect to login if user data is not available
+//     }
+//   } catch (error) {
+//     console.error('Error fetching profile data:', error);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
 // Render the profile page
 router.get('/profile', async(req, res) => {
   const userData = await User.findByPk(req.session.user_id);
