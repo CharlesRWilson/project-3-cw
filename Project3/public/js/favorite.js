@@ -4,9 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
     favoriteButtons.forEach(button => {
       button.addEventListener('click', async (event) => {
         const cardId = event.target.getAttribute('data-id');
-  
+        console.log(cardId);
+        
         try {
-          const response = await fetch('/favorite', {
+          const response = await fetch('/api/favorites', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

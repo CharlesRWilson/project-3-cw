@@ -1,5 +1,5 @@
 const User = require('./User');
-const Favorite = require('./favorite');
+const Favorite = require('./Favorite');
 
 // Define associations
 User.hasMany(Favorite, {

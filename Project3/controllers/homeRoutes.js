@@ -87,8 +87,10 @@ router.post('/favorite', async (req, res) => {
 
     // Save favorite card to the database
     await Favorite.create({ userId, cardId });
-
+    console.log(`Card ${cardId} favorited by user ${userId}`);
+    
     res.status(201).json({ message: 'Card favorited successfully' });
+  
   } catch (error) {
     console.error('Error favoriting card:', error);
     res.status(500).json({ message: 'Internal Server Error' });
